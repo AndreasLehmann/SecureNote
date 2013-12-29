@@ -87,7 +87,7 @@ public class NoteEntity implements Serializable{
 
     @Override
     public String toString() {
-        return "NoteEntity{" + "title=" + title + ", body=" + body + '}';
+        return "NoteEntity{ id=" + uniqueKey + ", title=" + title + ", body=" + body + '}';
     }
 
 }
