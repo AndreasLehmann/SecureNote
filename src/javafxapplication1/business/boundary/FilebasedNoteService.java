@@ -51,15 +51,13 @@ public class FilebasedNoteService implements NoteService {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(SimpleStringProperty.class, new SimpleStringPropertyTypeAdapter());
         gson = gsonBuilder.create();
-
-        List<String> filenameList = readDir();
-        for (Iterator<String> it = filenameList.iterator(); it.hasNext();) {
-            noteList.add(readNoteEntity(basePath + "/" + it.next()));
-        }     
+        
     }
+
 
     @Override
     public ListProperty<NoteEntity> list() {
+        refreshList(noteList);
         return noteList;
     }
 
@@ -157,6 +155,23 @@ public class FilebasedNoteService implements NoteService {
                 Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.SEVERE, "Can't write note entity to disk: "  +  noteEntity);
             }
         }
+    }
+
+    private void refreshList(ListProperty<NoteEntity> list) {
+        List<String> filenameList = readDir();
+        for (Iterator<String> it = filenameList.iterator(); it.hasNext();) {
+            NoteEntity e = readNoteEntity(basePath + "/" + it.next());
+            
+            if(list.contains(e)){
+                // Skip !
+                Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.SEVERE, "list merge: skipped: "  +  e);
+            }else{
+                // add new 
+                list.add(e);
+                Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.SEVERE, "list merge: added  : "  +  e);
+            }
+            
+        }     
     }
 
     private static class SimpleStringPropertyTypeAdapter implements JsonSerializer<SimpleStringProperty>,JsonDeserializer<SimpleStringProperty>  {
