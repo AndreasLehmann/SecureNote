@@ -73,6 +73,10 @@ public class NoteEntity implements Serializable{
         return createdOn;
     }
 
+    public void setLastSavedOn(long lastSavedOn) {
+        this.lastSavedOn = lastSavedOn;
+    }
+
     public long getLastSavedOn() {
         return lastSavedOn;
     }

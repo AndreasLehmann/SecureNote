@@ -16,6 +16,8 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.ListProperty;
 import javafxapplication1.business.entity.NoteEntity;
 import org.junit.Test;
@@ -158,21 +160,47 @@ public class FilebasedNoteServiceTest {
         
          } finally{
          restoreElement();
-         }*/
+         }
+         */
         fail("The test case is a prototype.");
     }
 
     /**
      * Test of persistChanges method, of class FilebasedNoteService.
      */
-    //@Test
+    @Test
     public void testPersistChanges() {
         System.out.println("persistChanges");
-        FilebasedNoteService instance = null;
-        instance.persistChanges();
+        //service.persistChanges();
+
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
+
+    @Test
+    public void testLastChangedUpdate() throws IOException {
+        System.out.println("LastChangedUpdate");
+        try {
+            modifyElement(); // Ändere eine Datei
+
+            NoteEntity e = service.readNoteEntity(UUID.fromString(MODIFY_TESTFILE_UUID));
+            long beforeChange = e.getLastSavedOn();
+            e.setTitle("modified Title");
+            service.writeNoteEntity(e);
+            long afterChange = e.getLastSavedOn();
+
+            assertTrue(afterChange > beforeChange);
+
+        } catch (IOException ex) {
+            Logger.getLogger(FilebasedNoteServiceTest.class.getName()).log(Level.SEVERE, null, ex);
+
+        } finally {
+            restoreElement(); // alles Rückgängig machen
+        }
+    }
+    /*########################################################################*/
+    /* H I L F S  F U N K T I O N E N                                         */
+    /*########################################################################*/
 
     /**
      * Liest eine Datei von Filesystem
@@ -248,7 +276,7 @@ public class FilebasedNoteServiceTest {
 
     }
 
-    public static void copyFile(File sourceFile, File destFile) throws IOException {
+    private static void copyFile(File sourceFile, File destFile) throws IOException {
         if (!destFile.exists()) {
             destFile.createNewFile();
         }

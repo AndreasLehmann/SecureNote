@@ -153,6 +153,7 @@ public class FilebasedNoteService implements NoteService {
                 // hier kann man nichts mehr machen...
             }
         }
+        n.setLastSavedOn(System.currentTimeMillis());
         return true;
     }
 

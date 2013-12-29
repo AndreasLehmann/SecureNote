@@ -194,6 +194,11 @@ public class NoteEntityTest {
         
         assertEquals(source.getBody(), dest.getBody()); // gleicher Body
         assertEquals(source.getTitle(), dest.getTitle()); // gleicher title
+
+        assertEquals(source.getCreatedOn(), dest.getCreatedOn()); // gleiches Erzeugungsdatum
+        assertEquals(source.getLastSavedOn(), dest.getLastSavedOn()); // gleiches Speicherdatum
+        
+        
     }
     
 }
