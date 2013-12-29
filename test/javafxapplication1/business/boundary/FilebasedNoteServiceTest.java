@@ -7,15 +7,17 @@ package javafxapplication1.business.boundary;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import javafx.beans.property.ListProperty;
 import javafxapplication1.business.entity.NoteEntity;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -27,26 +29,15 @@ public class FilebasedNoteServiceTest {
 
     FilebasedNoteService service = null;
     final String baseTestNoteRepository = "f:/tmp/MySecretNoteStorage_DEBUG/";
+    private final String SPARE_TESTFILE_UUID = "10d2ec23-048c-4974-b7ed-f10d76ebc5a1";
+    private final String MODIFY_TESTFILE_UUID = "025192d9-bcfb-49d2-81da-6c2e0d6f4d61";
+
+    private static final boolean SPARE2JSON = true;
+    private static final boolean JSON2SPARE = false;
 
     public FilebasedNoteServiceTest() {
         service = new FilebasedNoteService(baseTestNoteRepository);
 
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
     }
 
     /**
@@ -111,23 +102,70 @@ public class FilebasedNoteServiceTest {
     @Test
     public void testReadNoteEntity() {
         System.out.println("testReadNoteEntity");
-        final String TEST_FILENAME = baseTestNoteRepository+"025192d9-bcfb-49d2-81da-6c2e0d6f4d61.json";
-        
-        
-        fail("The test case is a prototype.");
+        final String TEST_UUID = "025192d9-bcfb-49d2-81da-6c2e0d6f4d61";
+        final String TEST_FILENAME = baseTestNoteRepository + TEST_UUID + ".json";
+        final String expectedTitle = "t1";
+        final String expectedBodyPart = "B1</body>";
+
+        NoteEntity e = service.readNoteEntity(UUID.fromString(TEST_UUID));
+        assertNotNull(e); // geladen?
+
+        assertEquals(TEST_UUID, e.getUniqueKey().toString()); // UUID korrekt?
+        assertEquals(expectedTitle, e.getTitle()); // Titel korrekt?
+        assertTrue(e.getBody().indexOf(expectedBodyPart) >= 0); // Body Inhalt testen
     }
 
+    /**
+     * Dies ist ein High-Level test, der selbst wieder von readNoteEntity() und
+     * writeNoteEntity() gebrauch macht!
+     */
     @Test
-    public void testMergeList() {
+    public void testMergeList() throws IOException {
         System.out.println("testMergeList");
 
+        // Lese original Liste ein
+        List<NoteEntity> baseList;
+        List<NoteEntity> l1 = service.list().getValue();
+        baseList = clone(l1); // clone die Liste und alle Elemente!
+
+        // ##########################################
+        /// Test 1 alles ist unverändert
+        l1 = service.list().getValue(); // neu einlesen!
+        assertEquals(l1.toString(), baseList.toString()); // sind die Listen nach dem erneuten Einlesen noch gleich?
+
+        // ##########################################
+        /// Test 2 neues NoteEntity hinzugekommen
+        toggleSpareElement(SPARE2JSON);
+        l1 = service.list().getValue(); // neu einlesen!
+        toggleSpareElement(JSON2SPARE);
+        assertEquals(baseList.size() + 1, l1.size());
+
+        // ##########################################
+        /// Test 3 das neue NoteEntity wurde wieder entfernt
+        l1 = service.list().getValue(); // neu einlesen!
+        assertEquals(baseList.size(), l1.size());
+
+        /*        
+         // ##########################################
+         /// Test 4 ein NoteEntity wurde geändert
+         try{
+         modifyElement(); // Ändere eine Datei
+         l1 = service.list().getValue(); // neu einlesen!
+         assertNotSame("Geändertes Element wurde nicht eingelesen!", baseList.toString(), l1.toString());
+        
+         } catch (IOException ex) {
+         Logger.getLogger(FilebasedNoteServiceTest.class.getName()).log(Level.SEVERE, null, ex);
+        
+         } finally{
+         restoreElement();
+         }*/
         fail("The test case is a prototype.");
     }
 
     /**
      * Test of persistChanges method, of class FilebasedNoteService.
      */
-    @Test
+    //@Test
     public void testPersistChanges() {
         System.out.println("persistChanges");
         FilebasedNoteService instance = null;
@@ -156,6 +194,79 @@ public class FilebasedNoteServiceTest {
         } while (zeile != null);
         br.close();
         return b.toString();
+    }
+
+    /**
+     * Klone die komplette Liste mit neuen Elementen.
+     *
+     * @param sourceList
+     * @return
+     */
+    private List<NoteEntity> clone(List<NoteEntity> sourceList) {
+        List<NoteEntity> destList = new ArrayList<>();
+        for (NoteEntity e : sourceList) {
+            destList.add(e.cloneElement());
+        }
+        return destList;
+    }
+
+    private void toggleSpareElement(boolean direction) {
+        final String SPARE_FILE = baseTestNoteRepository + SPARE_TESTFILE_UUID;
+        File spareFile = new File(SPARE_FILE + ".spare");
+        File jsonFile = new File(SPARE_FILE + ".json");
+
+        if (direction == SPARE2JSON) {
+            assertTrue(spareFile.renameTo(jsonFile));
+        } else {
+            assertTrue(jsonFile.renameTo(spareFile));
+        }
+    }
+
+    /**
+     * Ändert ein bestehendes NoteEntity im Titel.
+     */
+    private void modifyElement() throws IOException {
+        String originalFilename = baseTestNoteRepository + MODIFY_TESTFILE_UUID + ".json";
+        String backupFilename = baseTestNoteRepository + MODIFY_TESTFILE_UUID + ".json.bak";
+        copyFile(new File(originalFilename), new File(backupFilename));
+
+        NoteEntity e = service.readNoteEntity(UUID.fromString(MODIFY_TESTFILE_UUID));
+
+        e.setTitle("modified Title");
+        service.writeNoteEntity(e);
+    }
+
+    private void restoreElement() throws IOException {
+        String originalFilename = baseTestNoteRepository + MODIFY_TESTFILE_UUID + ".json";
+        String backupFilename = baseTestNoteRepository + MODIFY_TESTFILE_UUID + ".json.bak";
+
+        File originalF = new File(originalFilename);
+        File backupF = new File(backupFilename);
+
+        originalF.delete();
+        backupF.renameTo(new File(originalFilename));
+
+    }
+
+    public static void copyFile(File sourceFile, File destFile) throws IOException {
+        if (!destFile.exists()) {
+            destFile.createNewFile();
+        }
+        FileChannel source = null;
+        FileChannel destination = null;
+
+        try {
+            source = new FileInputStream(sourceFile).getChannel();
+            destination = new FileOutputStream(destFile).getChannel();
+            destination.transferFrom(source, 0, source.size());
+        } finally {
+            if (source != null) {
+                source.close();
+            }
+            if (destination != null) {
+                destination.close();
+            }
+        }
     }
 
 }
