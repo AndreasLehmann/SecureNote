@@ -19,18 +19,22 @@ public class NoteEntity implements Serializable{
     private UUID uniqueKey;
     private SimpleStringProperty title;
     private SimpleStringProperty body;
+    private long createdOn = 0L;
+    private long lastSavedOn = 0L;
 
     public NoteEntity() {
         this.title = new SimpleStringProperty();
         this.body = new SimpleStringProperty();
-        uniqueKey = UUID.randomUUID();
+        this.uniqueKey = UUID.randomUUID();
+        this.createdOn = System.currentTimeMillis();
     }
 
     public NoteEntity(String title, String body) {
         super();
         this.title = new SimpleStringProperty(title);
         this.body = new SimpleStringProperty(body);
-        uniqueKey = UUID.randomUUID();
+        this.uniqueKey = UUID.randomUUID();
+        this.createdOn = System.currentTimeMillis();
     }
 
     public String getTitle() {
@@ -65,6 +69,14 @@ public class NoteEntity implements Serializable{
         return uniqueKey;
     }
 
+    public long getCreatedOn() {
+        return createdOn;
+    }
+
+    public long getLastSavedOn() {
+        return lastSavedOn;
+    }
+    
     @Override
     public int hashCode() {
         int hash = 7;
@@ -89,9 +101,19 @@ public class NoteEntity implements Serializable{
         return "NoteEntity{ id=" + uniqueKey + ", title=" + title + ", body=" + body + '}';
     }
 
+    /**
+     * Diese Methode erzeugt eine komplette Deep-Copy
+     * des Elements inklusive der ID, DateCreated usw.
+     * 
+     * Der clone hat den gleichen HasCode wie das Original.
+     * 
+     * @return 
+     */
     public NoteEntity cloneElement() {
         NoteEntity clone = new NoteEntity(this.getTitle(),this.getBody());
         clone.uniqueKey=this.uniqueKey;
+        clone.createdOn=this.createdOn;
+        clone.lastSavedOn=this.lastSavedOn;
         return clone;
     }    
 }

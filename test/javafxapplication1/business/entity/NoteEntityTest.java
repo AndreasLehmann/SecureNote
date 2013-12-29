@@ -118,7 +118,22 @@ public class NoteEntityTest {
         assertNotNull(instance2.getUniqueKey()); // wurde ein schlüssel erzeugt?
         assertNotSame(instance1.getUniqueKey().toString(),instance2.getUniqueKey().toString()); // hat ein neues Objekt einen anderen schlüssel?
     }
+    /**
+     * Test of getCreatedOn() method, of class NoteEntity.
+     */
+    @Test
+    public void testGetCreatedOn() {
+        System.out.println("getCreatedOn");
+        
+        long now =System.currentTimeMillis();
+        NoteEntity instance = new NoteEntity();
+                
+        assertTrue(instance.getCreatedOn()>0); // größer 0
 
+        assertTrue((instance.getCreatedOn()-now) < 5 ); // Erzeugung innerhalb 5ms
+        
+    }
+    
     /**
      * Test of hashCode method, of class NoteEntity.
      */
