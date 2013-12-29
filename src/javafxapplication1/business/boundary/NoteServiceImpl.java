@@ -37,14 +37,15 @@ import javafxapplication1.business.entity.NoteEntity;
  */
 public class NoteServiceImpl implements NoteService {
 
-    public static String basePath = "f:/tmp/MySecretNoteStorage_A/";
+    public final String basePath;
 
     ListProperty<NoteEntity> noteList = new SimpleListProperty<>(javafx.collections.FXCollections.observableList(new ArrayList<NoteEntity>()));
 
     private final Gson gson;
             
-    public NoteServiceImpl() {
-
+    public NoteServiceImpl(String basepath) {
+        this.basePath=basepath;
+                
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(SimpleStringProperty.class, new SimpleStringPropertyTypeAdapter());
         gson = gsonBuilder.create();
@@ -60,7 +61,7 @@ public class NoteServiceImpl implements NoteService {
         return noteList;
     }
 
-    private static List<String> readDir() {
+    private List<String> readDir() {
         File dir = new File(basePath);
         File[] files = dir.listFiles();
         ArrayList<String> filenames = new ArrayList<>();

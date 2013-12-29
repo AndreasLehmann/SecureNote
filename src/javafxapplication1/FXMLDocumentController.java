@@ -33,7 +33,7 @@ import javafxapplication1.presentation.NoteTitleCellFactory;
 public class FXMLDocumentController implements Initializable {
 
     //private final NoteService noteService = new NoteServiceMock();
-    private final NoteService noteService = new NoteServiceImpl();
+    private final NoteService noteService = new NoteServiceImpl("f:/tmp/MySecretNoteStorage_A/");
     public SimpleObjectProperty<NoteEntity> selectedEntity;
 
     @FXML
