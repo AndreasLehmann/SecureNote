@@ -64,6 +64,8 @@ public class FilebasedNoteServiceTest {
 
     /**
      * Test of writeNoteEntity method, of class FilebasedNoteService.
+     *
+     * @throws java.io.IOException wenn der Leseversuch auf der Datei scheitert
      */
     @Test
     public void testWriteNoteEntity() throws IOException {
@@ -91,13 +93,13 @@ public class FilebasedNoteServiceTest {
             assertTrue(success); // lesen möglich?
 
             // prüfe Inhalt
-            String content = readFile(f); 
-            assertTrue( content.indexOf(testTitle) >=0 ); // ist der Titel in der Datei enthalten?
-            assertTrue( content.indexOf(n.getUniqueKey().toString()) >=0 ); // ist die UUID in der Datei enthalten?
+            String content = readFile(f);
+            assertTrue(content.indexOf(testTitle) >= 0); // ist der Titel in der Datei enthalten?
+            assertTrue(content.indexOf(n.getUniqueKey().toString()) >= 0); // ist die UUID in der Datei enthalten?
 
             success = f.delete();
             assertTrue(success); // löschen hat geklappt?
-            f=null;
+            f = null;
         } finally {
             if (f != null) {
                 f.delete(); // Lösche Datei !
@@ -106,10 +108,26 @@ public class FilebasedNoteServiceTest {
 
     }
 
+    @Test
+    public void testReadNoteEntity() {
+        System.out.println("testReadNoteEntity");
+        final String TEST_FILENAME = baseTestNoteRepository+"025192d9-bcfb-49d2-81da-6c2e0d6f4d61.json";
+        
+        
+        fail("The test case is a prototype.");
+    }
+
+    @Test
+    public void testMergeList() {
+        System.out.println("testMergeList");
+
+        fail("The test case is a prototype.");
+    }
+
     /**
      * Test of persistChanges method, of class FilebasedNoteService.
      */
-    //@Test
+    @Test
     public void testPersistChanges() {
         System.out.println("persistChanges");
         FilebasedNoteService instance = null;
@@ -118,19 +136,24 @@ public class FilebasedNoteServiceTest {
         fail("The test case is a prototype.");
     }
 
+    /**
+     * Liest eine Datei von Filesystem
+     *
+     * @param f File
+     * @return Inhalt der Datei als String
+     *
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     private String readFile(File f) throws FileNotFoundException, IOException {
         FileReader fr = new FileReader(f);
-        
         BufferedReader br = new BufferedReader(fr);
-
         StringBuilder b = new StringBuilder();
         String zeile;
-
         do {
             zeile = br.readLine();
             b.append(zeile);
         } while (zeile != null);
-
         br.close();
         return b.toString();
     }
