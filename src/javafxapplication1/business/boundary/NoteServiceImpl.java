@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import javafxapplication1.business.entity.NoteEntity;
 public class NoteServiceImpl implements NoteService {
 
     public final String basePath;
+    private final JSONNameFilter jsonFilenameFilter = new JSONNameFilter();
 
     ListProperty<NoteEntity> noteList = new SimpleListProperty<>(javafx.collections.FXCollections.observableList(new ArrayList<NoteEntity>()));
 
@@ -63,7 +65,7 @@ public class NoteServiceImpl implements NoteService {
 
     private List<String> readDir() {
         File dir = new File(basePath);
-        File[] files = dir.listFiles();
+        File[] files = dir.listFiles( jsonFilenameFilter );
         ArrayList<String> filenames = new ArrayList<>();
         for (File f : files) {
             if(f.isFile()){
@@ -165,6 +167,13 @@ public class NoteServiceImpl implements NoteService {
         @Override
         public SimpleStringProperty deserialize(JsonElement je, Type type, JsonDeserializationContext jdc) throws JsonParseException {
             return new SimpleStringProperty(je.getAsJsonPrimitive().getAsString());
+        }
+    }
+
+    private static class JSONNameFilter implements FilenameFilter{
+        @Override
+        public boolean accept(File file, String string) {
+            return string.endsWith(".json");
         }
     }
 
