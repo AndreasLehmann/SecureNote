@@ -15,12 +15,12 @@ import javafxapplication1.business.entity.NoteEntity;
  *
  * @author Andreas
  */
-public class NoteServiceMock implements NoteService {
+public class MockNoteService implements NoteService {
 
     ListProperty<NoteEntity> noteList = new SimpleListProperty<>(javafx.collections.FXCollections.observableList(new ArrayList<NoteEntity>()));
 
 
-    public NoteServiceMock() {
+    public MockNoteService() {
         
         noteList.add( new NoteEntity("Title1","Body 1"));
         noteList.add( new NoteEntity("Title2","<h1>HTML</h1>Message."));

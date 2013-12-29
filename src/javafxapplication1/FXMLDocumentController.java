@@ -22,7 +22,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
 import javafxapplication1.business.boundary.NoteService;
-import javafxapplication1.business.boundary.NoteServiceImpl;
+import javafxapplication1.business.boundary.FilebasedNoteService;
 import javafxapplication1.business.entity.NoteEntity;
 import javafxapplication1.presentation.NoteTitleCellFactory;
 
@@ -33,7 +33,7 @@ import javafxapplication1.presentation.NoteTitleCellFactory;
 public class FXMLDocumentController implements Initializable {
 
     //private final NoteService noteService = new NoteServiceMock();
-    private final NoteService noteService = new NoteServiceImpl("f:/tmp/MySecretNoteStorage_A/");
+    private final NoteService noteService = new FilebasedNoteService("f:/tmp/MySecretNoteStorage_A/");
     public SimpleObjectProperty<NoteEntity> selectedEntity;
 
     @FXML

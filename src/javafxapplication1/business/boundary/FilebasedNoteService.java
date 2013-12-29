@@ -36,7 +36,7 @@ import javafxapplication1.business.entity.NoteEntity;
  *
  * @author Andreas
  */
-public class NoteServiceImpl implements NoteService {
+public class FilebasedNoteService implements NoteService {
 
     public final String basePath;
     private final JSONNameFilter jsonFilenameFilter = new JSONNameFilter();
@@ -45,7 +45,7 @@ public class NoteServiceImpl implements NoteService {
 
     private final Gson gson;
             
-    public NoteServiceImpl(String basepath) {
+    public FilebasedNoteService(String basepath) {
         this.basePath=basepath;
                 
         GsonBuilder gsonBuilder = new GsonBuilder();
@@ -77,7 +77,7 @@ public class NoteServiceImpl implements NoteService {
 
     private NoteEntity readNoteEntity(String filepath) {
 
-        Logger.getLogger(NoteServiceImpl.class.getName()).log(Level.FINER, "read: filepath=" + filepath);
+        Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.FINER, "read: filepath=" + filepath);
 
         BufferedReader br = null;
         StringBuilder sb;
@@ -95,7 +95,7 @@ public class NoteServiceImpl implements NoteService {
             }
 
         } catch (IOException ex) {
-            Logger.getLogger(NoteServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         } finally {
             try {
@@ -103,14 +103,14 @@ public class NoteServiceImpl implements NoteService {
                     br.close();
                 }
             } catch (IOException ex) {
-                Logger.getLogger(NoteServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.SEVERE, null, ex);
                 // nix tun...
             }
         }
 
         
         NoteEntity n;
-        Logger.getLogger(NoteServiceImpl.class.getName()).log(Level.FINEST, "read json string=" + sb.toString());
+        Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.FINEST, "read json string=" + sb.toString());
         n = (NoteEntity) gson.fromJson(sb.toString(), NoteEntity.class);
 
         return n;
@@ -122,7 +122,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     private boolean writeNoteEntity(NoteEntity n, String filepath) {
-        Logger.getLogger(NoteServiceImpl.class.getName()).log(Level.FINER, "write: filepath=" + filepath);
+        Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.FINER, "write: filepath=" + filepath);
 
         String json = gson.toJson(n);
         File f = new File(filepath);
@@ -131,10 +131,10 @@ public class NoteServiceImpl implements NoteService {
             fos = new FileOutputStream(f);
             fos.write(json.getBytes());
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(NoteServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         } catch (IOException ex) {
-            Logger.getLogger(NoteServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         } finally {
             try {
@@ -142,7 +142,7 @@ public class NoteServiceImpl implements NoteService {
                     fos.close();
                 }
             } catch (IOException ex) {
-                Logger.getLogger(NoteServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.SEVERE, null, ex);
                 // hier kann man nichts mehr machen...
             }
         }
@@ -154,7 +154,7 @@ public class NoteServiceImpl implements NoteService {
         for (NoteEntity noteEntity : noteList) {
             boolean writeSuccessful = this.writeNoteEntity(noteEntity);
             if(!writeSuccessful){
-                Logger.getLogger(NoteServiceImpl.class.getName()).log(Level.SEVERE, "Can't write note entity to disk: "  +  noteEntity);
+                Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.SEVERE, "Can't write note entity to disk: "  +  noteEntity);
             }
         }
     }

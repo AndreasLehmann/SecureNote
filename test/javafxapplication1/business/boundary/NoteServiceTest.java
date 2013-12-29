@@ -22,7 +22,7 @@ public class NoteServiceTest {
     @Test
     public void testListImpl() {
     
-        NoteService s = new NoteServiceImpl("f:/tmp/MySecretNoteStorage_DEBUG/");
+        NoteService s = new FilebasedNoteService("f:/tmp/MySecretNoteStorage_DEBUG/");
      
         for (Iterator<NoteEntity> iter = s.list().listIterator(); iter.hasNext();) {
             NoteEntity note = iter.next();
@@ -33,7 +33,7 @@ public class NoteServiceTest {
     @Test
     public void testListMock() {
     
-        NoteService s = new NoteServiceMock();
+        NoteService s = new MockNoteService();
         
         for (Iterator<NoteEntity> iter = s.list().listIterator(); iter.hasNext();) {
             NoteEntity note = iter.next();
