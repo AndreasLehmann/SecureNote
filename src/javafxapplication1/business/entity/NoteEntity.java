@@ -16,10 +16,9 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class NoteEntity implements Serializable{
 
-    private final UUID uniqueKey;
-
-    private final SimpleStringProperty title;
-    private final SimpleStringProperty body;
+    private UUID uniqueKey;
+    private SimpleStringProperty title;
+    private SimpleStringProperty body;
 
     public NoteEntity() {
         this.title = new SimpleStringProperty();
@@ -90,4 +89,9 @@ public class NoteEntity implements Serializable{
         return "NoteEntity{ id=" + uniqueKey + ", title=" + title + ", body=" + body + '}';
     }
 
+    public NoteEntity cloneElement() {
+        NoteEntity clone = new NoteEntity(this.getTitle(),this.getBody());
+        clone.uniqueKey=this.uniqueKey;
+        return clone;
+    }    
 }
