@@ -25,6 +25,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.ListProperty;
@@ -38,22 +39,22 @@ import javafxapplication1.business.entity.NoteEntity;
  */
 public class FilebasedNoteService implements NoteService {
 
+    protected static final String FILE_SUFFIX = ".json";
     public final String basePath;
     private final JSONNameFilter jsonFilenameFilter = new JSONNameFilter();
 
     ListProperty<NoteEntity> noteList = new SimpleListProperty<>(javafx.collections.FXCollections.observableList(new ArrayList<NoteEntity>()));
 
     private final Gson gson;
-            
+
     public FilebasedNoteService(String basepath) {
-        this.basePath=basepath;
-                
+        this.basePath = basepath;
+
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(SimpleStringProperty.class, new SimpleStringPropertyTypeAdapter());
         gson = gsonBuilder.create();
-        
-    }
 
+    }
 
     @Override
     public ListProperty<NoteEntity> list() {
@@ -63,14 +64,19 @@ public class FilebasedNoteService implements NoteService {
 
     private List<String> readDir() {
         File dir = new File(basePath);
-        File[] files = dir.listFiles( jsonFilenameFilter );
+        File[] files = dir.listFiles(jsonFilenameFilter);
         ArrayList<String> filenames = new ArrayList<>();
         for (File f : files) {
-            if(f.isFile()){
+            if (f.isFile()) {
                 filenames.add(f.getName());
             }
         }
         return filenames;
+    }
+
+    @Override
+    public NoteEntity readNoteEntity(UUID id) {
+        return readNoteEntity(buildFilename(id));
     }
 
     private NoteEntity readNoteEntity(String filepath) {
@@ -106,7 +112,6 @@ public class FilebasedNoteService implements NoteService {
             }
         }
 
-        
         NoteEntity n;
         Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.FINEST, "read json string=" + sb.toString());
         n = (NoteEntity) gson.fromJson(sb.toString(), NoteEntity.class);
@@ -116,7 +121,11 @@ public class FilebasedNoteService implements NoteService {
 
     @Override
     public boolean writeNoteEntity(NoteEntity n) {
-        return writeNoteEntity(n, basePath + "/" + n.getUniqueKey()+".json");
+        return writeNoteEntity(n, buildFilename(n.getUniqueKey()));
+    }
+
+    protected String buildFilename(UUID id) {
+        return basePath + "/" + id + FILE_SUFFIX;
     }
 
     private boolean writeNoteEntity(NoteEntity n, String filepath) {
@@ -151,8 +160,8 @@ public class FilebasedNoteService implements NoteService {
     public void persistChanges() {
         for (NoteEntity noteEntity : noteList) {
             boolean writeSuccessful = this.writeNoteEntity(noteEntity);
-            if(!writeSuccessful){
-                Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.SEVERE, "Can't write note entity to disk: "  +  noteEntity);
+            if (!writeSuccessful) {
+                Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.SEVERE, "Can't write note entity to disk: " + noteEntity);
             }
         }
     }
@@ -161,34 +170,38 @@ public class FilebasedNoteService implements NoteService {
         List<String> filenameList = readDir();
         for (Iterator<String> it = filenameList.iterator(); it.hasNext();) {
             NoteEntity e = readNoteEntity(basePath + "/" + it.next());
-            
-            if(list.contains(e)){
+
+            if (list.contains(e)) {
                 // Skip !
-                Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.SEVERE, "list merge: skipped: "  +  e);
-            }else{
+                // TODO: Prüfen, ob Datei neu eingelesen werden muss
+                Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.SEVERE, "list merge: skipped: " + e);
+            } else {
                 // add new 
                 list.add(e);
-                Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.SEVERE, "list merge: added  : "  +  e);
+                Logger.getLogger(FilebasedNoteService.class.getName()).log(Level.SEVERE, "list merge: added  : " + e);
             }
-            
-        }     
+
+        }
     }
 
-    private static class SimpleStringPropertyTypeAdapter implements JsonSerializer<SimpleStringProperty>,JsonDeserializer<SimpleStringProperty>  {
+    private static class SimpleStringPropertyTypeAdapter implements JsonSerializer<SimpleStringProperty>, JsonDeserializer<SimpleStringProperty> {
+
         @Override
         public JsonElement serialize(SimpleStringProperty t, Type type, JsonSerializationContext jsc) {
-            return new JsonPrimitive( t.getValue() );
+            return new JsonPrimitive(t.getValue());
         }
+
         @Override
         public SimpleStringProperty deserialize(JsonElement je, Type type, JsonDeserializationContext jdc) throws JsonParseException {
             return new SimpleStringProperty(je.getAsJsonPrimitive().getAsString());
         }
     }
 
-    private static class JSONNameFilter implements FilenameFilter{
+    private static class JSONNameFilter implements FilenameFilter {
+
         @Override
         public boolean accept(File file, String string) {
-            return string.endsWith(".json");
+            return string.endsWith(FILE_SUFFIX);
         }
     }
 

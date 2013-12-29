@@ -5,6 +5,7 @@
  */
 package javafxapplication1.business.boundary;
 
+import java.util.UUID;
 import javafx.beans.property.ListProperty;
 import javafxapplication1.business.entity.NoteEntity;
 
@@ -17,6 +18,8 @@ public interface NoteService {
     ListProperty<NoteEntity> list();
 
     boolean writeNoteEntity(NoteEntity n);
+
+    NoteEntity readNoteEntity( UUID id);
 
     public void persistChanges();
 

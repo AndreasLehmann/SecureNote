@@ -7,6 +7,7 @@
 package javafxapplication1.business.boundary;
 
 import java.util.ArrayList;
+import java.util.UUID;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafxapplication1.business.entity.NoteEntity;
@@ -38,6 +39,11 @@ public class MockNoteService implements NoteService {
 
     @Override
     public void persistChanges() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public NoteEntity readNoteEntity(UUID id) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
