@@ -22,7 +22,7 @@ public class NoteServiceTest {
     @Test
     public void testListImpl() {
     
-        NoteService s = new NoteServiceImpl("f:/tmp/MySecretNoteStorage_A/");
+        NoteService s = new NoteServiceImpl("f:/tmp/MySecretNoteStorage_DEBUG/");
      
         for (Iterator<NoteEntity> iter = s.list().listIterator(); iter.hasNext();) {
             NoteEntity note = iter.next();
